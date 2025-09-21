@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Profile Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+
+    input {
+      padding: 10px;
+      width: 60%;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    #profile {
+      margin-top: 20px;
+    }
+
+    #profile img {
+      border-radius: 50%;
+      width: 120px;
+    }
+
+    #repos {
+      list-style: none;
+      padding: 0;
+    }
+
+    #repos li {
+      background: #eee;
+      margin: 5px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 GitHub Profile Analyzer</h1>
+    <input type="text" id="username" placeholder="Enter GitHub username">
+    <button onclick="getProfile()">Search</button>
+
+    <div id="profile"></div>
+
+    <h2>Repositories</h2>
+    <ul id="repos"></ul>
+  </div>
+
+  <script>
+    async function getProfile() {
+      const username = document.getElementById("username").value.trim();
+      const profileDiv = document.getElementById("profile");
+      const reposList = document.getElementById("repos");
+
+      if (!username) {
+        alert("Please enter a GitHub username");
+        return;
+      }
+
+      profileDiv.innerHTML = "Loading...";
+      reposList.innerHTML = "";
+
+      try {
+        // Fetch profile
+        const profileRes = await fetch(`https://api.github.com/users/${username}`);
+        const profileData = await profileRes.json();
+
+        if (profileData.message === "Not Found") {
+          profileDiv.innerHTML = "<p>User not found ❌</p>";
+          return;
+        }
+
+        profileDiv.innerHTML = `
+          <img src="${profileData.avatar_url}" alt="Avatar">
+          <h2>${profileData.name || "No name"}</h2>
+          <p>${profileData.bio || "No bio available"}</p>
+          <p>👥 Followers: ${profileData.followers} | Following: ${profileData.following}</p>
+          <p>📦 Public Repos: ${profileData.public_repos}</p>
+          <a href="${profileData.html_url}" target="_blank">View Profile</a>
+        `;
+
+        // Fetch repos (top 10 by stars)
+        const reposRes = await fetch(`https://api.github.com/users/${username}/repos?sort=stars&per_page=10`);
+        const reposData = await reposRes.json();
+
+        reposList.innerHTML = reposData.map(repo => `
+          <li>
+            <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+            ⭐ ${repo.stargazers_count} | 🍴 ${repo.forks_count}
+          </li>
+        `).join("");
+
+      } catch (error) {
+        console.error(error);
+        profileDiv.innerHTML = "<p>Error fetching data ⚠️</p>";
+      }
+    }
+  </script>
+</body>
+</html>
