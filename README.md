@@ -1,4 +1,5 @@
 screenshot:https://i.postimg.cc/y60ZM7Dh/ggggash.jpg
+<img width="1083" height="518" alt="ggggash" src="https://github.com/user-attachments/assets/d6dbe65f-d664-422c-a25a-6d8916d829f2" />
 
 
 # 🔍 GitHub Profile Analyzer
